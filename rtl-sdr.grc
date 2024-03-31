@@ -33,45 +33,132 @@ options:
     state: enabled
 
 blocks:
+- name: bw
+  id: variable
+  parameters:
+    comment: ''
+    value: 200e3
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [296, 8.0]
+    rotation: 0
+    state: enabled
+- name: centerFrequency
+  id: variable
+  parameters:
+    comment: ''
+    value: 96.1e6
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [200, 8.0]
+    rotation: 0
+    state: enabled
 - name: samp_rate
   id: variable
   parameters:
     comment: ''
-    value: 2.048e6
+    value: 2e6
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [184, 12]
+    coordinate: [120, 8.0]
     rotation: 0
     state: enabled
-- name: qtgui_sink_x_0
-  id: qtgui_sink_x
+- name: analog_wfm_rcv_0
+  id: analog_wfm_rcv
   parameters:
     affinity: ''
     alias: ''
-    bw: samp_rate
+    audio_decimation: '10'
     comment: ''
-    fc: 100.7e6
-    fftsize: '1024'
-    gui_hint: ''
     maxoutbuf: '0'
     minoutbuf: '0'
-    name: '""'
-    plotconst: 'True'
-    plotfreq: 'True'
-    plottime: 'True'
-    plotwaterfall: 'True'
-    rate: '10'
-    showports: 'False'
-    showrf: 'False'
-    type: complex
-    wintype: window.WIN_BLACKMAN_hARRIS
+    quad_rate: 500e3
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [400, 224.0]
+    coordinate: [488, 248.0]
+    rotation: 0
+    state: enabled
+- name: audio_sink_0
+  id: audio_sink
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    device_name: ''
+    num_inputs: '1'
+    ok_to_block: 'True'
+    samp_rate: '48000'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [912, 252.0]
+    rotation: 0
+    state: enabled
+- name: blocks_multiply_const_vxx_0
+  id: blocks_multiply_const_vxx
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    const: '1'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    type: float
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [792, 252.0]
+    rotation: 0
+    state: enabled
+- name: rational_resampler_xxx_0
+  id: rational_resampler_xxx
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    decim: '4'
+    fbw: '0'
+    interp: '1'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    taps: '[]'
+    type: ccc
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [336, 240.0]
+    rotation: 0
+    state: enabled
+- name: rational_resampler_xxx_0_0
+  id: rational_resampler_xxx
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    decim: '50'
+    fbw: '0'
+    interp: '48'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    taps: '[]'
+    type: fff
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [656, 240.0]
     rotation: 0
     state: enabled
 - name: rtlsdr_source_0
@@ -144,7 +231,7 @@ blocks:
     bb_gain7: '20'
     bb_gain8: '20'
     bb_gain9: '20'
-    bw0: '0'
+    bw0: bw
     bw1: '0'
     bw10: '0'
     bw11: '0'
@@ -184,8 +271,10 @@ blocks:
     clock_source5: ''
     clock_source6: ''
     clock_source7: ''
-    comment: ''
-    corr0: '60'
+    comment: 'import sys
+
+      sys.path.insert(0, "/Users/anujlele/radioconda/lib/python3.10/site-packages")'
+    corr0: '0'
     corr1: '0'
     corr10: '0'
     corr11: '0'
@@ -249,7 +338,7 @@ blocks:
     dc_offset_mode7: '0'
     dc_offset_mode8: '0'
     dc_offset_mode9: '0'
-    freq0: 100e6
+    freq0: centerFrequency
     freq1: 100e6
     freq10: 100e6
     freq11: 100e6
@@ -414,7 +503,7 @@ blocks:
     nchan: '1'
     num_mboards: '1'
     sample_rate: samp_rate
-    sync: sync
+    sync: pc_clock
     time_source0: ''
     time_source1: ''
     time_source2: ''
@@ -428,12 +517,16 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [144, 192.0]
+    coordinate: [144, 196.0]
     rotation: 0
     state: enabled
 
 connections:
-- [rtlsdr_source_0, '0', qtgui_sink_x_0, '0']
+- [analog_wfm_rcv_0, '0', rational_resampler_xxx_0_0, '0']
+- [blocks_multiply_const_vxx_0, '0', audio_sink_0, '0']
+- [rational_resampler_xxx_0, '0', analog_wfm_rcv_0, '0']
+- [rational_resampler_xxx_0_0, '0', blocks_multiply_const_vxx_0, '0']
+- [rtlsdr_source_0, '0', rational_resampler_xxx_0, '0']
 
 metadata:
   file_format: 1

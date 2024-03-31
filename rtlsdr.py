@@ -10,8 +10,12 @@
 
 from PyQt5 import Qt
 from gnuradio import qtgui
-from gnuradio import gr
+from gnuradio import analog
+from gnuradio import audio
+from gnuradio import blocks
+from gnuradio import filter
 from gnuradio.filter import firdes
+from gnuradio import gr
 from gnuradio.fft import window
 import sys
 import signal
@@ -21,7 +25,6 @@ from gnuradio.eng_arg import eng_float, intx
 from gnuradio import eng_notation
 import osmosdr
 import time
-import sip
 
 
 
@@ -60,7 +63,9 @@ class rtlsdr(gr.top_block, Qt.QWidget):
         ##################################################
         # Variables
         ##################################################
-        self.samp_rate = samp_rate = 2.048e6
+        self.samp_rate = samp_rate = 2e6
+        self.centerFrequency = centerFrequency = 96.1e6
+        self.bw = bw = 200e3
 
         ##################################################
         # Blocks
@@ -69,10 +74,10 @@ class rtlsdr(gr.top_block, Qt.QWidget):
         self.rtlsdr_source_0 = osmosdr.source(
             args="numchan=" + str(1) + " " + ""
         )
-        self.rtlsdr_source_0.set_time_unknown_pps(osmosdr.time_spec_t())
+        self.rtlsdr_source_0.set_time_now(osmosdr.time_spec_t(time.time()), osmosdr.ALL_MBOARDS)
         self.rtlsdr_source_0.set_sample_rate(samp_rate)
-        self.rtlsdr_source_0.set_center_freq(100e6, 0)
-        self.rtlsdr_source_0.set_freq_corr(60, 0)
+        self.rtlsdr_source_0.set_center_freq(centerFrequency, 0)
+        self.rtlsdr_source_0.set_freq_corr(0, 0)
         self.rtlsdr_source_0.set_dc_offset_mode(0, 0)
         self.rtlsdr_source_0.set_iq_balance_mode(0, 0)
         self.rtlsdr_source_0.set_gain_mode(True, 0)
@@ -80,31 +85,33 @@ class rtlsdr(gr.top_block, Qt.QWidget):
         self.rtlsdr_source_0.set_if_gain(20, 0)
         self.rtlsdr_source_0.set_bb_gain(20, 0)
         self.rtlsdr_source_0.set_antenna('', 0)
-        self.rtlsdr_source_0.set_bandwidth(0, 0)
-        self.qtgui_sink_x_0 = qtgui.sink_c(
-            1024, #fftsize
-            window.WIN_BLACKMAN_hARRIS, #wintype
-            100.7e6, #fc
-            samp_rate, #bw
-            "", #name
-            True, #plotfreq
-            True, #plotwaterfall
-            True, #plottime
-            True, #plotconst
-            None # parent
+        self.rtlsdr_source_0.set_bandwidth(bw, 0)
+        self.rational_resampler_xxx_0_0 = filter.rational_resampler_fff(
+                interpolation=48,
+                decimation=50,
+                taps=[],
+                fractional_bw=0)
+        self.rational_resampler_xxx_0 = filter.rational_resampler_ccc(
+                interpolation=1,
+                decimation=4,
+                taps=[],
+                fractional_bw=0)
+        self.blocks_multiply_const_vxx_0 = blocks.multiply_const_ff(1)
+        self.audio_sink_0 = audio.sink(48000, '', True)
+        self.analog_wfm_rcv_0 = analog.wfm_rcv(
+        	quad_rate=500e3,
+        	audio_decimation=10,
         )
-        self.qtgui_sink_x_0.set_update_time(1.0/10)
-        self._qtgui_sink_x_0_win = sip.wrapinstance(self.qtgui_sink_x_0.qwidget(), Qt.QWidget)
-
-        self.qtgui_sink_x_0.enable_rf_freq(False)
-
-        self.top_layout.addWidget(self._qtgui_sink_x_0_win)
 
 
         ##################################################
         # Connections
         ##################################################
-        self.connect((self.rtlsdr_source_0, 0), (self.qtgui_sink_x_0, 0))
+        self.connect((self.analog_wfm_rcv_0, 0), (self.rational_resampler_xxx_0_0, 0))
+        self.connect((self.blocks_multiply_const_vxx_0, 0), (self.audio_sink_0, 0))
+        self.connect((self.rational_resampler_xxx_0, 0), (self.analog_wfm_rcv_0, 0))
+        self.connect((self.rational_resampler_xxx_0_0, 0), (self.blocks_multiply_const_vxx_0, 0))
+        self.connect((self.rtlsdr_source_0, 0), (self.rational_resampler_xxx_0, 0))
 
 
     def closeEvent(self, event):
@@ -120,8 +127,21 @@ class rtlsdr(gr.top_block, Qt.QWidget):
 
     def set_samp_rate(self, samp_rate):
         self.samp_rate = samp_rate
-        self.qtgui_sink_x_0.set_frequency_range(100.7e6, self.samp_rate)
         self.rtlsdr_source_0.set_sample_rate(self.samp_rate)
+
+    def get_centerFrequency(self):
+        return self.centerFrequency
+
+    def set_centerFrequency(self, centerFrequency):
+        self.centerFrequency = centerFrequency
+        self.rtlsdr_source_0.set_center_freq(self.centerFrequency, 0)
+
+    def get_bw(self):
+        return self.bw
+
+    def set_bw(self, bw):
+        self.bw = bw
+        self.rtlsdr_source_0.set_bandwidth(self.bw, 0)
 
 
 

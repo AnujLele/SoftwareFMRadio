@@ -3,28 +3,34 @@ from PyQt6 import QtWidgets
 from PyQt6.QtWidgets import QApplication, QMainWindow
 from SFMR_UI import Ui_MainWindow
 import sys
-# sys.path.insert(0, "/Users/anujlele/radioconda/lib/python3.10/site-packages")
+sys.path.insert(0, "/Users/anujlele/radioconda/lib/python3.10/site-packages")
+from PyQt5 import *
 # from PyQt5 import Qt
 
-# app = Qt.QApplication([])
+mainApp = QApplication([])
+gnuRadioapp = Qt.QApplication([])
 
-# topblock = rtlsdr()
+# def startFMStation(freq):
+topblock = rtlsdr()
 
-# topblock.set_centerFrequency(162.55e6)
-# topblock.set_decimationFactor(10)
-# topblock.start()
-# topblock.show()
+def startFMStation(freq):
+    topblock.set_centerFrequency(freq)
+    topblock.set_decimationFactor(10)
+    topblock.start()
+    # topblock.show()
 
 # Start the event loop.
 # app.exec()
 
 # import sys
-app = QApplication(sys.argv)
+# app = Qt.QApplication([])
 MainWindow = QMainWindow()
 ui = Ui_MainWindow()
 ui.setupUi(MainWindow)
 MainWindow.show()
-app.exec()
+startFMStation(96.9e6)
+gnuRadioapp.exec()
+mainApp.exec()
 
 
 

@@ -10,7 +10,6 @@ from PyQt5 import *
 mainApp = QApplication([])
 gnuRadioapp = Qt.QApplication([])
 
-# def startFMStation(freq):
 topblock = rtlsdr()
 
 def startFMStation(freq):
@@ -19,11 +18,6 @@ def startFMStation(freq):
     topblock.start()
     # topblock.show()
 
-# Start the event loop.
-# app.exec()
-
-# import sys
-# app = Qt.QApplication([])
 MainWindow = QMainWindow()
 ui = Ui_MainWindow()
 ui.setupUi(MainWindow)

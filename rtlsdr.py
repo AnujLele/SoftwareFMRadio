@@ -195,8 +195,8 @@ class rtlsdr(gr.top_block, Qt.QWidget):
         # Connections
         ##################################################
         self.connect((self.analog_wfm_rcv_0, 0), (self.rational_resampler_xxx_0_0, 0))
-        self.connect((self.blocks_multiply_const_vxx_0, 0), (self.audio_sink_0, 0))
         self.connect((self.blocks_multiply_const_vxx_0, 0), (self.audio_sink_0, 1))
+        self.connect((self.blocks_multiply_const_vxx_0, 0), (self.audio_sink_0, 0))
         self.connect((self.rational_resampler_xxx_0, 0), (self.analog_wfm_rcv_0, 0))
         self.connect((self.rational_resampler_xxx_0, 0), (self.qtgui_freq_sink_x_0_0, 0))
         self.connect((self.rational_resampler_xxx_0_0, 0), (self.blocks_multiply_const_vxx_0, 0))
@@ -244,6 +244,8 @@ class rtlsdr(gr.top_block, Qt.QWidget):
         self.bw = bw
         self.rtlsdr_source_0.set_bandwidth(self.bw, 0)
         self.rtlsdr_source_0.set_bandwidth(self.bw, 1)
+
+
 
 
 def main(top_block_cls=rtlsdr, options=None):

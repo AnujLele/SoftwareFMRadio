@@ -1,29 +1,33 @@
 from rtlsdr import rtlsdr
-from PyQt6 import QtWidgets
-from PyQt6.QtWidgets import QApplication, QMainWindow
-from SFMR_UI import Ui_MainWindow
+from SFMR_UI5 import Ui_MainWindow
 import sys
-sys.path.insert(0, "/Users/anujlele/radioconda/lib/python3.10/site-packages")
+from FMRadio import FMRadio
+# sys.path.insert(0, "/Users/anujlele/radioconda/lib/python3.10/site-packages")
 from PyQt5 import *
 # from PyQt5 import Qt
 
-mainApp = QApplication([])
-gnuRadioapp = Qt.QApplication([])
+# print("SYS PATH HERE" + str(sys.path))
+mainApp = QtWidgets.QApplication([])
+# gnuRadioapp = Qt.QApplication([])
 
-topblock = rtlsdr()
+# topblock = rtlsdr()
 
-def startFMStation(freq):
-    topblock.set_centerFrequency(freq)
-    topblock.set_decimationFactor(10)
-    topblock.start()
-    # topblock.show()
+class functionalMainUI(Ui_MainWindow):
+    def __init__(self) -> None:
+        super().__init__()
+        self.radio = FMRadio()
 
-MainWindow = QMainWindow()
-ui = Ui_MainWindow()
+    def connectFunctions(self):
+        self.pushButton.clicked.connect(self.radio.startFMStation)
+
+
+
+MainWindow = QtWidgets.QMainWindow()
+ui = functionalMainUI()
 ui.setupUi(MainWindow)
+ui.connectFunctions()
 MainWindow.show()
-startFMStation(96.9e6)
-gnuRadioapp.exec()
+
 mainApp.exec()
 
 

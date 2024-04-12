@@ -2,6 +2,7 @@ import sys
 sys.path.insert(0, "/Users/anujlele/radioconda/lib/python3.10/site-packages")
 # from PyQt5 import *
 from PyQt5.QtWidgets import QApplication, QWidget, QMainWindow
+from PyQt5.QtCore import pyqtSignal
 from rtlsdr import rtlsdr
 from SFMR_UI5 import Ui_MainWindow
 from FMRadio import FMRadio
@@ -23,11 +24,10 @@ class functionalMainUI(Ui_MainWindow):
     def __init__(self) -> None:
         super().__init__()
         self.radio = FMRadio()
-        # self.pushButton.setClickable(True)
 
     def connectFunctions(self):
         self.pushButton.clicked.connect(self.radio.startFMStation)
-
+        self.pushButton_7.clicked.connect(self.radio.scanSpectrum)
         # self.pushButton.clicked.connect(self.printStatement)
 
     def printStatement(self):

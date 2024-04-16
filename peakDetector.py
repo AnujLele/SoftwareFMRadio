@@ -68,7 +68,7 @@ class peakDetector(gr.top_block, Qt.QWidget):
         ##################################################
         self.samp_rate = samp_rate = 2e6
         self.decimationFactor = decimationFactor = 4
-        self.centerFrequency = centerFrequency = 95e6
+        self.centerFrequency = centerFrequency = 100.7e6
         self.bw = bw = 50e3
 
         ##################################################
@@ -142,18 +142,19 @@ class peakDetector(gr.top_block, Qt.QWidget):
 
         self._qtgui_freq_sink_x_0_0_0_win = sip.wrapinstance(self.qtgui_freq_sink_x_0_0_0.qwidget(), Qt.QWidget)
         self.top_layout.addWidget(self._qtgui_freq_sink_x_0_0_0_win)
-        self.inspector_signal_detector_cvf_0 = inspector.signal_detector_cvf(samp_rate, 1024, window.WIN_BLACKMAN_hARRIS, -20, 0.2, False, 0.2, 0.0001, 0, '')
+        self.inspector_signal_detector_cvf_0 = inspector.signal_detector_cvf(samp_rate, 1024, window.WIN_BLACKMAN_hARRIS, -40, 0.95, False, 0.2, 0.0001, 50000, '/Users/anujlele/Desktop/TestDoc.txt')
         self.inspector_qtgui_sink_vf_0 = inspector.qtgui_inspector_sink_vf(
           samp_rate,
           1024,
           centerFrequency,
           1,
           1,
-          True
+          False
         )
         self._inspector_qtgui_sink_vf_0_win = sip.wrapinstance(self.inspector_qtgui_sink_vf_0.pyqwidget(), Qt.QWidget)
 
         self.top_layout.addWidget(self._inspector_qtgui_sink_vf_0_win)
+        self.blocks_multiply_const_vxx_1 = blocks.multiply_const_cc(5)
         self.blocks_multiply_const_vxx_0 = blocks.multiply_const_ff(1)
         self.audio_sink_0 = audio.sink(48000, '', True)
         self.analog_wfm_rcv_0 = analog.wfm_rcv(
@@ -169,12 +170,13 @@ class peakDetector(gr.top_block, Qt.QWidget):
         self.connect((self.analog_wfm_rcv_0, 0), (self.rational_resampler_xxx_0_0, 0))
         self.connect((self.blocks_multiply_const_vxx_0, 0), (self.audio_sink_0, 1))
         self.connect((self.blocks_multiply_const_vxx_0, 0), (self.audio_sink_0, 0))
+        self.connect((self.blocks_multiply_const_vxx_1, 0), (self.inspector_signal_detector_cvf_0, 0))
+        self.connect((self.blocks_multiply_const_vxx_1, 0), (self.qtgui_freq_sink_x_0_0_0, 0))
+        self.connect((self.blocks_multiply_const_vxx_1, 0), (self.rational_resampler_xxx_0, 0))
         self.connect((self.inspector_signal_detector_cvf_0, 0), (self.inspector_qtgui_sink_vf_0, 0))
         self.connect((self.rational_resampler_xxx_0, 0), (self.analog_wfm_rcv_0, 0))
         self.connect((self.rational_resampler_xxx_0_0, 0), (self.blocks_multiply_const_vxx_0, 0))
-        self.connect((self.rtlsdr_source_0, 0), (self.inspector_signal_detector_cvf_0, 0))
-        self.connect((self.rtlsdr_source_0, 0), (self.qtgui_freq_sink_x_0_0_0, 0))
-        self.connect((self.rtlsdr_source_0, 0), (self.rational_resampler_xxx_0, 0))
+        self.connect((self.rtlsdr_source_0, 0), (self.blocks_multiply_const_vxx_1, 0))
 
 
     def closeEvent(self, event):

@@ -11,8 +11,8 @@ class FMRadio(object):
         # self.firstSignal = pyqtSignal()
 
 
-    firstSignal = pyqtSignal(list)
-    def startFMStation(self,freq=96.9e6):
+    # firstSignal = pyqtSignal(list)
+    def startFMStation(self, freq=96.9e6):
         self.stationPlayer.set_centerFrequency(freq)
         self.stationPlayer.set_decimationFactor(10)
         self.stationPlayer.start()

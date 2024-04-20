@@ -7,8 +7,7 @@
 # GNU Radio Python Flow Graph
 # Title: Not titled yet
 # GNU Radio version: 3.10.9.2
-import sys
-sys.path.insert(0, "/Users/anujlele/radioconda/lib/python3.10/site-packages")
+
 from PyQt5 import Qt
 from gnuradio import qtgui
 from gnuradio import analog
@@ -67,7 +66,7 @@ class rtlsdr(gr.top_block, Qt.QWidget):
         ##################################################
         self.samp_rate = samp_rate = 2e6
         self.decimationFactor = decimationFactor = 4
-        self.centerFrequency = centerFrequency = 96.9e6
+        self.centerFrequency = centerFrequency = 93.7e6
         self.bw = bw = 50e3
 
         ##################################################
@@ -195,8 +194,8 @@ class rtlsdr(gr.top_block, Qt.QWidget):
         # Connections
         ##################################################
         self.connect((self.analog_wfm_rcv_0, 0), (self.rational_resampler_xxx_0_0, 0))
-        self.connect((self.blocks_multiply_const_vxx_0, 0), (self.audio_sink_0, 1))
         self.connect((self.blocks_multiply_const_vxx_0, 0), (self.audio_sink_0, 0))
+        self.connect((self.blocks_multiply_const_vxx_0, 0), (self.audio_sink_0, 1))
         self.connect((self.rational_resampler_xxx_0, 0), (self.analog_wfm_rcv_0, 0))
         self.connect((self.rational_resampler_xxx_0, 0), (self.qtgui_freq_sink_x_0_0, 0))
         self.connect((self.rational_resampler_xxx_0_0, 0), (self.blocks_multiply_const_vxx_0, 0))

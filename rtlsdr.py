@@ -66,7 +66,7 @@ class rtlsdr(gr.top_block, Qt.QWidget):
         ##################################################
         self.samp_rate = samp_rate = 2e6
         self.decimationFactor = decimationFactor = 4
-        self.centerFrequency = centerFrequency = 93.7e6
+        self.centerFrequency = centerFrequency = 162.55e6
         self.bw = bw = 50e3
 
         ##################################################

@@ -3,7 +3,7 @@ sys.path.insert(0, "/Users/anujlele/radioconda/lib/python3.10/site-packages")
 # from PyQt5 import *
 from PyQt5.QtWidgets import QApplication, QWidget, QMainWindow
 from PyQt5.QtCore import pyqtSignal
-from rtlsdr import rtlsdr
+# from rtlsdr import rtlsdr
 from SFMR_UI5 import Ui_MainWindow
 from FMRadio import FMRadio
 
@@ -26,12 +26,24 @@ class functionalMainUI(Ui_MainWindow):
         self.radio = FMRadio()
 
     def connectFunctions(self):
-        self.pushButton.clicked.connect(self.radio.startFMStation)
+        self.pushButton.clicked.connect(self.playStation)
         self.pushButton_7.clicked.connect(self.radio.scanSpectrum)
-        # self.pushButton.clicked.connect(self.printStatement)
+        self.pushButton_7.clicked.connect(self.progressBar.reset)
+        self.radio.candidateStations.connect(self.fillStations)
+        self.radio.progressValue.connect(self.updateProgressBar)
 
-    def printStatement(self):
-        print("Here now")
+    def fillStations(self, candidates):
+        self.listWidget.clear()
+        self.listWidget.addItems(candidates)
+
+    def updateProgressBar(self, value):
+        self.progressBar.setValue(value)
+
+    def playStation(self):
+        self.radio.startFMStation(float(self.listWidget.currentItem().text()))
+        
+
+
 
 
 

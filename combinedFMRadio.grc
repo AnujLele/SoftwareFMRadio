@@ -11,7 +11,7 @@ options:
     gen_linking: dynamic
     generate_options: qt_gui
     hier_block_src_path: '.:'
-    id: rtlsdr
+    id: combinedFMRadio
     max_nouts: '0'
     output_language: python
     placement: (0,0)
@@ -42,19 +42,28 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [296, 8.0]
+    coordinate: [320, 16.0]
     rotation: 0
     state: enabled
 - name: centerFrequency
-  id: variable
+  id: variable_qtgui_range
   parameters:
     comment: ''
-    value: 96.9e6
+    gui_hint: ''
+    label: ''
+    min_len: '200'
+    orient: QtCore.Qt.Horizontal
+    rangeType: float
+    start: 87e6
+    step: 2e6
+    stop: 107e6
+    value: 87e6
+    widget: counter_slider
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [200, 8.0]
+    coordinate: [216, 16.0]
     rotation: 0
     state: enabled
 - name: decimationFactor
@@ -66,7 +75,40 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [368, 8.0]
+    coordinate: [400, 16.0]
+    rotation: 0
+    state: enabled
+- name: minBandwidth
+  id: variable_qtgui_range
+  parameters:
+    comment: ''
+    gui_hint: ''
+    label: ''
+    min_len: '200'
+    orient: QtCore.Qt.Horizontal
+    rangeType: float
+    start: '20000'
+    step: '10000'
+    stop: '200000'
+    value: '75000'
+    widget: counter_slider
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [616, 16.0]
+    rotation: 0
+    state: enabled
+- name: playAudio
+  id: variable
+  parameters:
+    comment: ''
+    value: 'False'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [728, 24.0]
     rotation: 0
     state: enabled
 - name: samp_rate
@@ -78,7 +120,28 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [120, 8.0]
+    coordinate: [144, 16.0]
+    rotation: 0
+    state: enabled
+- name: threshold
+  id: variable_qtgui_range
+  parameters:
+    comment: ''
+    gui_hint: ''
+    label: ''
+    min_len: '200'
+    orient: QtCore.Qt.Horizontal
+    rangeType: float
+    start: '-80'
+    step: '5'
+    stop: '0'
+    value: '-40'
+    widget: counter_slider
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [504, 16.0]
     rotation: 0
     state: enabled
 - name: analog_wfm_rcv_0
@@ -95,7 +158,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [496, 240.0]
+    coordinate: [400, 416.0]
     rotation: 0
     state: enabled
 - name: audio_sink_0
@@ -112,7 +175,58 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1088, 228.0]
+    coordinate: [1072, 420.0]
+    rotation: 0
+    state: enabled
+- name: blocks_message_strobe_0
+  id: blocks_message_strobe
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    msg: pmt.intern(str(centerFrequency))
+    period: '20'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [800, 256.0]
+    rotation: 0
+    state: enabled
+- name: blocks_message_strobe_0_0
+  id: blocks_message_strobe
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    msg: pmt.intern(str(playAudio))
+    period: '20'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [664, 496.0]
+    rotation: 0
+    state: enabled
+- name: blocks_message_strobe_1
+  id: blocks_message_strobe
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    msg: pmt.intern("TEST")
+    period: '1000'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [832, 168.0]
     rotation: 0
     state: enabled
 - name: blocks_multiply_const_vxx_0
@@ -130,7 +244,25 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [800, 244.0]
+    coordinate: [704, 420.0]
+    rotation: 0
+    state: enabled
+- name: blocks_multiply_const_vxx_1
+  id: blocks_multiply_const_vxx
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    const: '5'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    type: complex
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [248, 156.0]
     rotation: 0
     state: enabled
 - name: epy_block_0
@@ -140,194 +272,135 @@ blocks:
       \ GRC will instantiate the first class it finds\nto get ports and parameters\
       \ of your block. The arguments to __init__  will\nbe the parameters. All of\
       \ them are required to have default values!\n\"\"\"\n\nimport numpy as np\n\
-      from gnuradio import gr\n\n\nclass blk(gr.sync_block):  # other base classes\
-      \ are basic_block, decim_block, interp_block\n    \"\"\"Embedded Python Block\
-      \ example - a simple multiply const\"\"\"\n\n    def __init__(self, is_Passed\
-      \ = False):  # only default arguments here\n        \"\"\"arguments to this\
-      \ function show up as parameters in GRC\"\"\"\n        gr.sync_block.__init__(\n\
+      from gnuradio import gr\nimport pmt\n\n\nclass blk(gr.sync_block):  # other\
+      \ base classes are basic_block, decim_block, interp_block\n    \"\"\"Embedded\
+      \ Python Block example - a simple multiply const\"\"\"\n\n    def __init__(self,\
+      \ file_path = \"/Users/anujlele/Documents/logFreq.txt\", center_frequency =\
+      \ 96.9e6):  # only default arguments here\n        \"\"\"arguments to this function\
+      \ show up as parameters in GRC\"\"\"\n        gr.sync_block.__init__(\n    \
+      \        self,\n            name='EPB: Message to File',   # will show up in\
+      \ GRC\n            in_sig=None,\n            out_sig=None\n        ) # if an\
+      \ attribute with the same name as a parameter is found,\n        # a callback\
+      \ is registered (properties work, too).\n        self.message_port_register_in(pmt.intern('signalsDetected'))\n\
+      \        self.message_port_register_in(pmt.intern('centerFrequency'))\n    \
+      \    self.set_msg_handler(pmt.intern('signalsDetected'), self.handle_message)\n\
+      \        self.set_msg_handler(pmt.intern('centerFrequency'), self.handle_message2)\n\
+      \        self.file_path = file_path\n        self.centerFrequency = center_frequency\n\
+      \        \n    def handle_message(self, msg):\n        m = pmt.to_python(msg)\n\
+      \        message = str(m)\n        signalIndex = message.rfind(\"array\")\n\
+      \        while signalIndex != -1: # while \"array\" is found\n            detectedFreqOffset\
+      \ = \"\"\n            i = 7 # the index of the first digit we care about, singalIndex\
+      \ + \"array[(\"\n            while message[signalIndex + i] != ',':\n      \
+      \          detectedFreqOffset += message[signalIndex + i]\n                i\
+      \ += 1\n            detectedFreq = int(float(detectedFreqOffset) + self.centerFrequency)\n\
+      \            with open(self.file_path, 'a') as f:\n                f.write(str(detectedFreq)\
+      \ + \"\\n\")\n            \n            message = message[:signalIndex]\n  \
+      \          signalIndex = message.rfind(\"array\")\n\n    def handle_message2(self,\
+      \ msg):\n        self.centerFrequency = float(pmt.to_python(msg))\n        \
+      \    \n    def work(self, input_items, output_items):\n        \"\"\"example:\
+      \ multiply with constant\"\"\"\n        output_items[0][:] = input_items[0]\n\
+      \        return len(output_items[0])\n"
+    affinity: ''
+    alias: ''
+    center_frequency: centerFrequency
+    comment: ''
+    file_path: '"/Users/anujlele/Documents/logFreq.txt"'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+  states:
+    _io_cache: '(''EPB: Message to File'', ''blk'', [(''file_path'', "''/Users/anujlele/Documents/logFreq.txt''"),
+      (''center_frequency'', ''96900000.0'')], [(''signalsDetected'', ''message'',
+      1), (''centerFrequency'', ''message'', 1)], [], ''Embedded Python Block example
+      - a simple multiply const'', [''file_path''])'
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1080, 140.0]
+    rotation: 0
+    state: enabled
+- name: epy_block_0_0
+  id: epy_block
+  parameters:
+    _source_code: "\"\"\"\nEmbedded Python Blocks:\n\nEach time this file is saved,\
+      \ GRC will instantiate the first class it finds\nto get ports and parameters\
+      \ of your block. The arguments to __init__  will\nbe the parameters. All of\
+      \ them are required to have default values!\n\"\"\"\n\nimport numpy as np\n\
+      from gnuradio import gr\nimport pmt\n\n\nclass blk(gr.sync_block):  # other\
+      \ base classes are basic_block, decim_block, interp_block\n    \"\"\"Embedded\
+      \ Python Block example - a simple multiply const\"\"\"\n\n    def __init__(self,\
+      \ is_Passed = False):  # only default arguments here\n        \"\"\"arguments\
+      \ to this function show up as parameters in GRC\"\"\"\n        gr.sync_block.__init__(\n\
       \            self,\n            name='Embedded Python Block',   # will show\
       \ up in GRC\n            in_sig=[np.float32],\n            out_sig=[np.float32]\n\
       \        )\n        # if an attribute with the same name as a parameter is found,\n\
-      \        # a callback is registered (properties work, too).\n        self.isPassed\
-      \ = is_Passed\n\n    def work(self, input_items, output_items):\n        if\
-      \ self.isPassed:\n            output_items[0][:] = input_items[0]\n        else:\n\
-      \            output_items[0][:] = 0\n        return len(output_items[0])\n"
+      \        # a callback is registered (properties work, too).\n        self.message_port_register_in(pmt.intern('Play_Audio?'))\n\
+      \        self.set_msg_handler(pmt.intern('Play_Audio?'), self.handle_message)\n\
+      \        self.isPassed = is_Passed\n\n    def handle_message(self,msg):\n  \
+      \      self.playAudio = pmt.to_python(msg)\n        self.isPassed = (self.playAudio\
+      \ == \"True\")\n\n\n    def work(self, input_items, output_items):\n       \
+      \ if self.isPassed == True:\n            output_items[0][:] = input_items[0]\n\
+      \        else:\n            output_items[0][:] = 0\n        return len(output_items[0])\n"
     affinity: ''
     alias: ''
     comment: ''
-    is_Passed: 'False'
+    is_Passed: playAudio
     maxoutbuf: '0'
     minoutbuf: '0'
   states:
     _io_cache: ('Embedded Python Block', 'blk', [('is_Passed', 'False')], [('0', 'float',
-      1)], [('0', 'float', 1)], 'Embedded Python Block example - a simple multiply
-      const', [])
+      1), ('Play_Audio?', 'message', 1)], [('0', 'float', 1)], 'Embedded Python Block
+      example - a simple multiply const', [])
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [920, 244.0]
+    coordinate: [872, 420.0]
     rotation: 0
     state: enabled
-- name: qtgui_freq_sink_x_0_0
-  id: qtgui_freq_sink_x
+- name: inspector_qtgui_sink_vf_0
+  id: inspector_qtgui_sink_vf
   parameters:
     affinity: ''
     alias: ''
-    alpha1: '1.0'
-    alpha10: '1.0'
-    alpha2: '1.0'
-    alpha3: '1.0'
-    alpha4: '1.0'
-    alpha5: '1.0'
-    alpha6: '1.0'
-    alpha7: '1.0'
-    alpha8: '1.0'
-    alpha9: '1.0'
-    autoscale: 'False'
-    average: '0.2'
-    axislabels: 'True'
-    bw: samp_rate/decimationFactor
-    color1: '"blue"'
-    color10: '"dark blue"'
-    color2: '"red"'
-    color3: '"green"'
-    color4: '"black"'
-    color5: '"cyan"'
-    color6: '"magenta"'
-    color7: '"yellow"'
-    color8: '"dark red"'
-    color9: '"dark green"'
+    cfreq: '0'
     comment: ''
-    ctrlpanel: 'False'
-    fc: centerFrequency
-    fftsize: '1024'
-    freqhalf: 'True'
-    grid: 'False'
+    fft_len: '1024'
     gui_hint: ''
-    label: Relative Gain
-    label1: ''
-    label10: ''''''
-    label2: ''''''
-    label3: ''''''
-    label4: ''''''
-    label5: ''''''
-    label6: ''''''
-    label7: ''''''
-    label8: ''''''
-    label9: ''''''
-    legend: 'True'
+    manual: 'False'
     maxoutbuf: '0'
     minoutbuf: '0'
-    name: not raw data
-    nconnections: '1'
-    norm_window: 'False'
-    showports: 'False'
-    tr_chan: '0'
-    tr_level: '0.0'
-    tr_mode: qtgui.TRIG_MODE_FREE
-    tr_tag: '""'
-    type: complex
-    units: dB
-    update_time: '0.10'
-    width1: '1'
-    width10: '1'
-    width2: '1'
-    width3: '1'
-    width4: '1'
-    width5: '1'
-    width6: '1'
-    width7: '1'
-    width8: '1'
-    width9: '1'
-    wintype: window.WIN_BLACKMAN_hARRIS
-    ymax: '10'
-    ymin: '-140'
+    msgports: '1'
+    rf_unit: '1'
+    samp_rate: samp_rate
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [456, 112.0]
+    coordinate: [600, 140.0]
     rotation: 0
     state: enabled
-- name: qtgui_freq_sink_x_0_0_0
-  id: qtgui_freq_sink_x
+- name: inspector_signal_detector_cvf_0
+  id: inspector_signal_detector_cvf
   parameters:
     affinity: ''
     alias: ''
-    alpha1: '1.0'
-    alpha10: '1.0'
-    alpha2: '1.0'
-    alpha3: '1.0'
-    alpha4: '1.0'
-    alpha5: '1.0'
-    alpha6: '1.0'
-    alpha7: '1.0'
-    alpha8: '1.0'
-    alpha9: '1.0'
-    autoscale: 'False'
-    average: '0.2'
-    axislabels: 'True'
-    bw: samp_rate
-    color1: '"blue"'
-    color10: '"dark blue"'
-    color2: '"red"'
-    color3: '"green"'
-    color4: '"black"'
-    color5: '"cyan"'
-    color6: '"magenta"'
-    color7: '"yellow"'
-    color8: '"dark red"'
-    color9: '"dark green"'
+    auto: 'False'
+    avg: '0.2'
     comment: ''
-    ctrlpanel: 'True'
-    fc: centerFrequency
-    fftsize: '1024'
-    freqhalf: 'True'
-    grid: 'False'
-    gui_hint: ''
-    label: Relative Gain
-    label1: ''
-    label10: ''''''
-    label2: ''''''
-    label3: ''''''
-    label4: ''''''
-    label5: ''''''
-    label6: ''''''
-    label7: ''''''
-    label8: ''''''
-    label9: ''''''
-    legend: 'True'
+    fft_len: '1024'
+    logfile: log
     maxoutbuf: '0'
+    min_bw: '75000'
     minoutbuf: '0'
-    name: '"Raw Data"'
-    nconnections: '1'
-    norm_window: 'False'
-    showports: 'False'
-    tr_chan: '0'
-    tr_level: '0.0'
-    tr_mode: qtgui.TRIG_MODE_FREE
-    tr_tag: '""'
-    type: complex
-    units: dB
-    update_time: '0.10'
-    width1: '1'
-    width10: '1'
-    width2: '1'
-    width3: '1'
-    width4: '1'
-    width5: '1'
-    width6: '1'
-    width7: '1'
-    width8: '1'
-    width9: '1'
-    wintype: window.WIN_BLACKMAN_hARRIS
-    ymax: '10'
-    ymin: '-140'
+    quant: '0.0001'
+    samp_rate: samp_rate
+    sensitivity: '0.95'
+    threshold: threshold
+    window: window.WIN_BLACKMAN_hARRIS
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [304, 376.0]
+    coordinate: [376, 132.0]
     rotation: 0
     state: enabled
 - name: rational_resampler_xxx_0
@@ -347,7 +420,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [312, 232.0]
+    coordinate: [216, 408.0]
     rotation: 0
     state: enabled
 - name: rational_resampler_xxx_0_0
@@ -367,7 +440,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [656, 232.0]
+    coordinate: [560, 408.0]
     rotation: 0
     state: enabled
 - name: rtlsdr_source_0
@@ -726,19 +799,25 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [64, 188.0]
+    coordinate: [56, 100.0]
     rotation: 0
     state: enabled
 
 connections:
 - [analog_wfm_rcv_0, '0', rational_resampler_xxx_0_0, '0']
-- [blocks_multiply_const_vxx_0, '0', epy_block_0, '0']
-- [epy_block_0, '0', audio_sink_0, '0']
-- [epy_block_0, '0', audio_sink_0, '1']
+- [blocks_message_strobe_0, strobe, epy_block_0, centerFrequency]
+- [blocks_message_strobe_0_0, strobe, epy_block_0_0, 'Play_Audio?']
+- [blocks_message_strobe_1, strobe, epy_block_0, signalsDetected]
+- [blocks_multiply_const_vxx_0, '0', epy_block_0_0, '0']
+- [blocks_multiply_const_vxx_1, '0', inspector_signal_detector_cvf_0, '0']
+- [epy_block_0_0, '0', audio_sink_0, '0']
+- [epy_block_0_0, '0', audio_sink_0, '1']
+- [inspector_qtgui_sink_vf_0, map_out, blocks_message_strobe_1, set_msg]
+- [inspector_signal_detector_cvf_0, '0', inspector_qtgui_sink_vf_0, '0']
+- [inspector_signal_detector_cvf_0, map_out, inspector_qtgui_sink_vf_0, map_in]
 - [rational_resampler_xxx_0, '0', analog_wfm_rcv_0, '0']
-- [rational_resampler_xxx_0, '0', qtgui_freq_sink_x_0_0, '0']
 - [rational_resampler_xxx_0_0, '0', blocks_multiply_const_vxx_0, '0']
-- [rtlsdr_source_0, '0', qtgui_freq_sink_x_0_0_0, '0']
+- [rtlsdr_source_0, '0', blocks_multiply_const_vxx_1, '0']
 - [rtlsdr_source_0, '0', rational_resampler_xxx_0, '0']
 
 metadata:

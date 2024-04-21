@@ -10,9 +10,11 @@
 
 from PyQt5 import Qt
 from gnuradio import qtgui
+from PyQt5 import QtCore
 from gnuradio import analog
 from gnuradio import audio
 from gnuradio import blocks
+import pmt
 from gnuradio import filter
 from gnuradio.filter import firdes
 from gnuradio import gr
@@ -23,14 +25,17 @@ from PyQt5 import Qt
 from argparse import ArgumentParser
 from gnuradio.eng_arg import eng_float, intx
 from gnuradio import eng_notation
+import combinedFMRadio_epy_block_0 as epy_block_0  # embedded python block
+import combinedFMRadio_epy_block_0_0 as epy_block_0_0  # embedded python block
+import gnuradio.inspector as inspector
+from gnuradio import qtgui
+import sip
 import osmosdr
 import time
-import rtlsdr_epy_block_0 as epy_block_0  # embedded python block
-import sip
 
 
 
-class rtlsdr(gr.top_block, Qt.QWidget):
+class combinedFMRadio(gr.top_block, Qt.QWidget):
 
     def __init__(self):
         gr.top_block.__init__(self, "Not titled yet", catch_exceptions=True)
@@ -53,7 +58,7 @@ class rtlsdr(gr.top_block, Qt.QWidget):
         self.top_grid_layout = Qt.QGridLayout()
         self.top_layout.addLayout(self.top_grid_layout)
 
-        self.settings = Qt.QSettings("GNU Radio", "rtlsdr")
+        self.settings = Qt.QSettings("GNU Radio", "combinedFMRadio")
 
         try:
             geometry = self.settings.value("geometry")
@@ -65,15 +70,24 @@ class rtlsdr(gr.top_block, Qt.QWidget):
         ##################################################
         # Variables
         ##################################################
+        self.threshold = threshold = -40
         self.samp_rate = samp_rate = 2e6
+        self.playAudio = playAudio = False
+        self.minBandwidth = minBandwidth = 75000
         self.decimationFactor = decimationFactor = 4
-        self.centerFrequency = centerFrequency = 96.9e6
+        self.centerFrequency = centerFrequency = 87e6
         self.bw = bw = 50e3
 
         ##################################################
         # Blocks
         ##################################################
 
+        self._threshold_range = qtgui.Range(-80, 0, 5, -40, 200)
+        self._threshold_win = qtgui.RangeWidget(self._threshold_range, self.set_threshold, "'threshold'", "counter_slider", float, QtCore.Qt.Horizontal)
+        self.top_layout.addWidget(self._threshold_win)
+        self._centerFrequency_range = qtgui.Range(87e6, 107e6, 2e6, 87e6, 200)
+        self._centerFrequency_win = qtgui.RangeWidget(self._centerFrequency_range, self.set_centerFrequency, "'centerFrequency'", "counter_slider", float, QtCore.Qt.Horizontal)
+        self.top_layout.addWidget(self._centerFrequency_win)
         self.rtlsdr_source_0 = osmosdr.source(
             args="numchan=" + str(1) + " " + ""
         )
@@ -99,92 +113,28 @@ class rtlsdr(gr.top_block, Qt.QWidget):
                 decimation=decimationFactor,
                 taps=[],
                 fractional_bw=0)
-        self.qtgui_freq_sink_x_0_0_0 = qtgui.freq_sink_c(
-            1024, #size
-            window.WIN_BLACKMAN_hARRIS, #wintype
-            centerFrequency, #fc
-            samp_rate, #bw
-            "Raw Data", #name
-            1,
-            None # parent
+        self._minBandwidth_range = qtgui.Range(20000, 200000, 10000, 75000, 200)
+        self._minBandwidth_win = qtgui.RangeWidget(self._minBandwidth_range, self.set_minBandwidth, "'minBandwidth'", "counter_slider", float, QtCore.Qt.Horizontal)
+        self.top_layout.addWidget(self._minBandwidth_win)
+        self.inspector_signal_detector_cvf_0 = inspector.signal_detector_cvf(samp_rate, 1024, window.WIN_BLACKMAN_hARRIS, threshold, 0.95, False, 0.2, 0.0001, 75000, 'log')
+        self.inspector_qtgui_sink_vf_0 = inspector.qtgui_inspector_sink_vf(
+          samp_rate,
+          1024,
+          0,
+          1,
+          1,
+          False
         )
-        self.qtgui_freq_sink_x_0_0_0.set_update_time(0.10)
-        self.qtgui_freq_sink_x_0_0_0.set_y_axis((-140), 10)
-        self.qtgui_freq_sink_x_0_0_0.set_y_label('Relative Gain', 'dB')
-        self.qtgui_freq_sink_x_0_0_0.set_trigger_mode(qtgui.TRIG_MODE_FREE, 0.0, 0, "")
-        self.qtgui_freq_sink_x_0_0_0.enable_autoscale(False)
-        self.qtgui_freq_sink_x_0_0_0.enable_grid(False)
-        self.qtgui_freq_sink_x_0_0_0.set_fft_average(0.2)
-        self.qtgui_freq_sink_x_0_0_0.enable_axis_labels(True)
-        self.qtgui_freq_sink_x_0_0_0.enable_control_panel(True)
-        self.qtgui_freq_sink_x_0_0_0.set_fft_window_normalized(False)
+        self._inspector_qtgui_sink_vf_0_win = sip.wrapinstance(self.inspector_qtgui_sink_vf_0.pyqwidget(), Qt.QWidget)
 
-
-
-        labels = ['', '', '', '', '',
-            '', '', '', '', '']
-        widths = [1, 1, 1, 1, 1,
-            1, 1, 1, 1, 1]
-        colors = ["blue", "red", "green", "black", "cyan",
-            "magenta", "yellow", "dark red", "dark green", "dark blue"]
-        alphas = [1.0, 1.0, 1.0, 1.0, 1.0,
-            1.0, 1.0, 1.0, 1.0, 1.0]
-
-        for i in range(1):
-            if len(labels[i]) == 0:
-                self.qtgui_freq_sink_x_0_0_0.set_line_label(i, "Data {0}".format(i))
-            else:
-                self.qtgui_freq_sink_x_0_0_0.set_line_label(i, labels[i])
-            self.qtgui_freq_sink_x_0_0_0.set_line_width(i, widths[i])
-            self.qtgui_freq_sink_x_0_0_0.set_line_color(i, colors[i])
-            self.qtgui_freq_sink_x_0_0_0.set_line_alpha(i, alphas[i])
-
-        self._qtgui_freq_sink_x_0_0_0_win = sip.wrapinstance(self.qtgui_freq_sink_x_0_0_0.qwidget(), Qt.QWidget)
-        self.top_layout.addWidget(self._qtgui_freq_sink_x_0_0_0_win)
-        self.qtgui_freq_sink_x_0_0 = qtgui.freq_sink_c(
-            1024, #size
-            window.WIN_BLACKMAN_hARRIS, #wintype
-            centerFrequency, #fc
-            (samp_rate/decimationFactor), #bw
-            'not raw data', #name
-            1,
-            None # parent
-        )
-        self.qtgui_freq_sink_x_0_0.set_update_time(0.10)
-        self.qtgui_freq_sink_x_0_0.set_y_axis((-140), 10)
-        self.qtgui_freq_sink_x_0_0.set_y_label('Relative Gain', 'dB')
-        self.qtgui_freq_sink_x_0_0.set_trigger_mode(qtgui.TRIG_MODE_FREE, 0.0, 0, "")
-        self.qtgui_freq_sink_x_0_0.enable_autoscale(False)
-        self.qtgui_freq_sink_x_0_0.enable_grid(False)
-        self.qtgui_freq_sink_x_0_0.set_fft_average(0.2)
-        self.qtgui_freq_sink_x_0_0.enable_axis_labels(True)
-        self.qtgui_freq_sink_x_0_0.enable_control_panel(False)
-        self.qtgui_freq_sink_x_0_0.set_fft_window_normalized(False)
-
-
-
-        labels = ['', '', '', '', '',
-            '', '', '', '', '']
-        widths = [1, 1, 1, 1, 1,
-            1, 1, 1, 1, 1]
-        colors = ["blue", "red", "green", "black", "cyan",
-            "magenta", "yellow", "dark red", "dark green", "dark blue"]
-        alphas = [1.0, 1.0, 1.0, 1.0, 1.0,
-            1.0, 1.0, 1.0, 1.0, 1.0]
-
-        for i in range(1):
-            if len(labels[i]) == 0:
-                self.qtgui_freq_sink_x_0_0.set_line_label(i, "Data {0}".format(i))
-            else:
-                self.qtgui_freq_sink_x_0_0.set_line_label(i, labels[i])
-            self.qtgui_freq_sink_x_0_0.set_line_width(i, widths[i])
-            self.qtgui_freq_sink_x_0_0.set_line_color(i, colors[i])
-            self.qtgui_freq_sink_x_0_0.set_line_alpha(i, alphas[i])
-
-        self._qtgui_freq_sink_x_0_0_win = sip.wrapinstance(self.qtgui_freq_sink_x_0_0.qwidget(), Qt.QWidget)
-        self.top_layout.addWidget(self._qtgui_freq_sink_x_0_0_win)
-        self.epy_block_0 = epy_block_0.blk(is_Passed=False)
+        self.top_layout.addWidget(self._inspector_qtgui_sink_vf_0_win)
+        self.epy_block_0_0 = epy_block_0_0.blk(is_Passed=playAudio)
+        self.epy_block_0 = epy_block_0.blk(file_path="/Users/anujlele/Documents/logFreq.txt", center_frequency=centerFrequency)
+        self.blocks_multiply_const_vxx_1 = blocks.multiply_const_cc(5)
         self.blocks_multiply_const_vxx_0 = blocks.multiply_const_ff(1)
+        self.blocks_message_strobe_1 = blocks.message_strobe(pmt.intern("TEST"), 1000)
+        self.blocks_message_strobe_0_0 = blocks.message_strobe(pmt.intern(str(playAudio)), 20)
+        self.blocks_message_strobe_0 = blocks.message_strobe(pmt.intern(str(centerFrequency)), 20)
         self.audio_sink_0 = audio.sink(48000, '', True)
         self.analog_wfm_rcv_0 = analog.wfm_rcv(
         	quad_rate=(samp_rate/decimationFactor),
@@ -195,48 +145,72 @@ class rtlsdr(gr.top_block, Qt.QWidget):
         ##################################################
         # Connections
         ##################################################
+        self.msg_connect((self.blocks_message_strobe_0, 'strobe'), (self.epy_block_0, 'centerFrequency'))
+        self.msg_connect((self.blocks_message_strobe_0_0, 'strobe'), (self.epy_block_0_0, 'Play_Audio?'))
+        self.msg_connect((self.blocks_message_strobe_1, 'strobe'), (self.epy_block_0, 'signalsDetected'))
+        self.msg_connect((self.inspector_qtgui_sink_vf_0, 'map_out'), (self.blocks_message_strobe_1, 'set_msg'))
+        self.msg_connect((self.inspector_signal_detector_cvf_0, 'map_out'), (self.inspector_qtgui_sink_vf_0, 'map_in'))
         self.connect((self.analog_wfm_rcv_0, 0), (self.rational_resampler_xxx_0_0, 0))
-        self.connect((self.blocks_multiply_const_vxx_0, 0), (self.epy_block_0, 0))
-        self.connect((self.epy_block_0, 0), (self.audio_sink_0, 1))
-        self.connect((self.epy_block_0, 0), (self.audio_sink_0, 0))
+        self.connect((self.blocks_multiply_const_vxx_0, 0), (self.epy_block_0_0, 0))
+        self.connect((self.blocks_multiply_const_vxx_1, 0), (self.inspector_signal_detector_cvf_0, 0))
+        self.connect((self.epy_block_0_0, 0), (self.audio_sink_0, 1))
+        self.connect((self.epy_block_0_0, 0), (self.audio_sink_0, 0))
+        self.connect((self.inspector_signal_detector_cvf_0, 0), (self.inspector_qtgui_sink_vf_0, 0))
         self.connect((self.rational_resampler_xxx_0, 0), (self.analog_wfm_rcv_0, 0))
-        self.connect((self.rational_resampler_xxx_0, 0), (self.qtgui_freq_sink_x_0_0, 0))
         self.connect((self.rational_resampler_xxx_0_0, 0), (self.blocks_multiply_const_vxx_0, 0))
-        self.connect((self.rtlsdr_source_0, 0), (self.qtgui_freq_sink_x_0_0_0, 0))
+        self.connect((self.rtlsdr_source_0, 0), (self.blocks_multiply_const_vxx_1, 0))
         self.connect((self.rtlsdr_source_0, 0), (self.rational_resampler_xxx_0, 0))
 
 
     def closeEvent(self, event):
-        self.settings = Qt.QSettings("GNU Radio", "rtlsdr")
+        self.settings = Qt.QSettings("GNU Radio", "combinedFMRadio")
         self.settings.setValue("geometry", self.saveGeometry())
         self.stop()
         self.wait()
 
         event.accept()
 
+    def get_threshold(self):
+        return self.threshold
+
+    def set_threshold(self, threshold):
+        self.threshold = threshold
+        self.inspector_signal_detector_cvf_0.set_threshold(self.threshold)
+
     def get_samp_rate(self):
         return self.samp_rate
 
     def set_samp_rate(self, samp_rate):
         self.samp_rate = samp_rate
-        self.qtgui_freq_sink_x_0_0.set_frequency_range(self.centerFrequency, (self.samp_rate/self.decimationFactor))
-        self.qtgui_freq_sink_x_0_0_0.set_frequency_range(self.centerFrequency, self.samp_rate)
+        self.inspector_qtgui_sink_vf_0.set_samp_rate(self.samp_rate)
+        self.inspector_signal_detector_cvf_0.set_samp_rate(self.samp_rate)
         self.rtlsdr_source_0.set_sample_rate(self.samp_rate)
+
+    def get_playAudio(self):
+        return self.playAudio
+
+    def set_playAudio(self, playAudio):
+        self.playAudio = playAudio
+        self.blocks_message_strobe_0_0.set_msg(pmt.intern(str(self.playAudio)))
+
+    def get_minBandwidth(self):
+        return self.minBandwidth
+
+    def set_minBandwidth(self, minBandwidth):
+        self.minBandwidth = minBandwidth
 
     def get_decimationFactor(self):
         return self.decimationFactor
 
     def set_decimationFactor(self, decimationFactor):
         self.decimationFactor = decimationFactor
-        self.qtgui_freq_sink_x_0_0.set_frequency_range(self.centerFrequency, (self.samp_rate/self.decimationFactor))
 
     def get_centerFrequency(self):
         return self.centerFrequency
 
     def set_centerFrequency(self, centerFrequency):
         self.centerFrequency = centerFrequency
-        self.qtgui_freq_sink_x_0_0.set_frequency_range(self.centerFrequency, (self.samp_rate/self.decimationFactor))
-        self.qtgui_freq_sink_x_0_0_0.set_frequency_range(self.centerFrequency, self.samp_rate)
+        self.blocks_message_strobe_0.set_msg(pmt.intern(str(self.centerFrequency)))
         self.rtlsdr_source_0.set_center_freq(self.centerFrequency, 0)
 
     def get_bw(self):
@@ -250,7 +224,7 @@ class rtlsdr(gr.top_block, Qt.QWidget):
 
 
 
-def main(top_block_cls=rtlsdr, options=None):
+def main(top_block_cls=combinedFMRadio, options=None):
 
     qapp = Qt.QApplication(sys.argv)
 

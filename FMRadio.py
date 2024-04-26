@@ -19,8 +19,11 @@ class FMRadio(QObject):
         self.GNURadio.set_decimationFactor(10)
         self.GNURadio.set_playAudio(True)
         self.GNURadio.start()
-        self.GNURadio.show()
+        # self.GNURadio.show()
 
+    def stopFMStation(self):
+        self.GNURadio.stop()
+        self.GNURadio.wait()
         
 
     candidateStations = pyqtSignal(list)

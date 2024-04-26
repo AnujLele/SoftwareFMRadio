@@ -309,8 +309,8 @@ blocks:
     minoutbuf: '0'
   states:
     _io_cache: '(''EPB: Message to File'', ''blk'', [(''file_path'', "''/Users/anujlele/Documents/logFreq.txt''"),
-      (''center_frequency'', ''96900000.0'')], [(''signalsDetected'', ''message'',
-      1), (''centerFrequency'', ''message'', 1)], [], ''Embedded Python Block example
+      (''center_frequency'', ''96900000.0'')], [(''centerFrequency'', ''message'',
+      1), (''signalsDetected'', ''message'', 1)], [], ''Embedded Python Block example
       - a simple multiply const'', [''file_path''])'
     bus_sink: false
     bus_source: false

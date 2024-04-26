@@ -15,6 +15,7 @@ from gnuradio import analog
 from gnuradio import audio
 from gnuradio import blocks
 import pmt
+from gnuradio import digital
 from gnuradio import filter
 from gnuradio.filter import firdes
 from gnuradio import gr
@@ -32,6 +33,7 @@ from gnuradio import qtgui
 import sip
 import osmosdr
 import time
+import rds
 
 
 
@@ -75,7 +77,7 @@ class combinedFMRadio(gr.top_block, Qt.QWidget):
         self.playAudio = playAudio = False
         self.minBandwidth = minBandwidth = 75000
         self.decimationFactor = decimationFactor = 4
-        self.centerFrequency = centerFrequency = 87e6
+        self.centerFrequency = centerFrequency = 96.9e6
         self.bw = bw = 50e3
 
         ##################################################
@@ -85,7 +87,7 @@ class combinedFMRadio(gr.top_block, Qt.QWidget):
         self._threshold_range = qtgui.Range(-80, 0, 5, -40, 200)
         self._threshold_win = qtgui.RangeWidget(self._threshold_range, self.set_threshold, "'threshold'", "counter_slider", float, QtCore.Qt.Horizontal)
         self.top_layout.addWidget(self._threshold_win)
-        self._centerFrequency_range = qtgui.Range(87e6, 107e6, 2e6, 87e6, 200)
+        self._centerFrequency_range = qtgui.Range(87e6, 107e6, 2e6, 96.9e6, 200)
         self._centerFrequency_win = qtgui.RangeWidget(self._centerFrequency_range, self.set_centerFrequency, "'centerFrequency'", "counter_slider", float, QtCore.Qt.Horizontal)
         self.top_layout.addWidget(self._centerFrequency_win)
         self.rtlsdr_source_0 = osmosdr.source(
@@ -103,6 +105,11 @@ class combinedFMRadio(gr.top_block, Qt.QWidget):
         self.rtlsdr_source_0.set_bb_gain(20, 0)
         self.rtlsdr_source_0.set_antenna('', 0)
         self.rtlsdr_source_0.set_bandwidth(bw, 0)
+        self.rds_parser_0 = rds.parser(False, False, 0)
+        self.rds_panel_0 = rds.rdsPanel(centerFrequency)
+        self._rds_panel_0_win = self.rds_panel_0
+        self.top_layout.addWidget(self._rds_panel_0_win)
+        self.rds_decoder_0 = rds.decoder(False, False)
         self.rational_resampler_xxx_0_0 = filter.rational_resampler_fff(
                 interpolation=(int(48e3 * 10 * decimationFactor)),
                 decimation=int(samp_rate),
@@ -130,6 +137,20 @@ class combinedFMRadio(gr.top_block, Qt.QWidget):
         self.top_layout.addWidget(self._inspector_qtgui_sink_vf_0_win)
         self.epy_block_0_0 = epy_block_0_0.blk(is_Passed=playAudio)
         self.epy_block_0 = epy_block_0.blk(file_path="/Users/anujlele/Documents/logFreq.txt", center_frequency=centerFrequency)
+        self.digital_symbol_sync_xx_0 = digital.symbol_sync_cc(
+            digital.TED_ZERO_CROSSING,
+            16,
+            0.01,
+            1.0,
+            1.0,
+            0.1,
+            1,
+            digital.constellation_bpsk().base(),
+            digital.IR_MMSE_8TAP,
+            128,
+            [])
+        self.digital_diff_decoder_bb_0 = digital.diff_decoder_bb(2, digital.DIFF_DIFFERENTIAL)
+        self.digital_constellation_receiver_cb_0 = digital.constellation_receiver_cb(digital.constellation_bpsk().base(), (2*3.14159265358 / 100), (-0.002), 0.002)
         self.blocks_multiply_const_vxx_1 = blocks.multiply_const_cc(5)
         self.blocks_multiply_const_vxx_0 = blocks.multiply_const_ff(1)
         self.blocks_message_strobe_1 = blocks.message_strobe(pmt.intern("TEST"), 1000)
@@ -150,15 +171,21 @@ class combinedFMRadio(gr.top_block, Qt.QWidget):
         self.msg_connect((self.blocks_message_strobe_1, 'strobe'), (self.epy_block_0, 'signalsDetected'))
         self.msg_connect((self.inspector_qtgui_sink_vf_0, 'map_out'), (self.blocks_message_strobe_1, 'set_msg'))
         self.msg_connect((self.inspector_signal_detector_cvf_0, 'map_out'), (self.inspector_qtgui_sink_vf_0, 'map_in'))
+        self.msg_connect((self.rds_decoder_0, 'out'), (self.rds_parser_0, 'in'))
+        self.msg_connect((self.rds_parser_0, 'out'), (self.rds_panel_0, 'in'))
         self.connect((self.analog_wfm_rcv_0, 0), (self.rational_resampler_xxx_0_0, 0))
         self.connect((self.blocks_multiply_const_vxx_0, 0), (self.epy_block_0_0, 0))
         self.connect((self.blocks_multiply_const_vxx_1, 0), (self.inspector_signal_detector_cvf_0, 0))
-        self.connect((self.epy_block_0_0, 0), (self.audio_sink_0, 1))
+        self.connect((self.digital_constellation_receiver_cb_0, 0), (self.digital_diff_decoder_bb_0, 0))
+        self.connect((self.digital_diff_decoder_bb_0, 0), (self.rds_decoder_0, 0))
+        self.connect((self.digital_symbol_sync_xx_0, 0), (self.digital_constellation_receiver_cb_0, 0))
         self.connect((self.epy_block_0_0, 0), (self.audio_sink_0, 0))
+        self.connect((self.epy_block_0_0, 0), (self.audio_sink_0, 1))
         self.connect((self.inspector_signal_detector_cvf_0, 0), (self.inspector_qtgui_sink_vf_0, 0))
         self.connect((self.rational_resampler_xxx_0, 0), (self.analog_wfm_rcv_0, 0))
         self.connect((self.rational_resampler_xxx_0_0, 0), (self.blocks_multiply_const_vxx_0, 0))
         self.connect((self.rtlsdr_source_0, 0), (self.blocks_multiply_const_vxx_1, 0))
+        self.connect((self.rtlsdr_source_0, 0), (self.digital_symbol_sync_xx_0, 0))
         self.connect((self.rtlsdr_source_0, 0), (self.rational_resampler_xxx_0, 0))
 
 
@@ -211,6 +238,7 @@ class combinedFMRadio(gr.top_block, Qt.QWidget):
     def set_centerFrequency(self, centerFrequency):
         self.centerFrequency = centerFrequency
         self.blocks_message_strobe_0.set_msg(pmt.intern(str(self.centerFrequency)))
+        self.rds_panel_0.set_frequency(self.centerFrequency)
         self.rtlsdr_source_0.set_center_freq(self.centerFrequency, 0)
 
     def get_bw(self):

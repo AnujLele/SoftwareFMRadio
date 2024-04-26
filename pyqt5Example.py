@@ -28,6 +28,7 @@ class functionalMainUI(Ui_MainWindow):
     def connectFunctions(self):
         self.pushButton.clicked.connect(self.playStation)
         self.pushButton_7.clicked.connect(self.radio.scanSpectrum)
+        self.pushButton_2.clicked.connect(self.stopStation)
         self.pushButton_7.clicked.connect(self.progressBar.reset)
         self.radio.candidateStations.connect(self.fillStations)
         self.radio.progressValue.connect(self.updateProgressBar)
@@ -41,6 +42,16 @@ class functionalMainUI(Ui_MainWindow):
 
     def playStation(self):
         self.radio.startFMStation(float(self.listWidget.currentItem().text()))
+        self.lcdNumber.display(float(self.listWidget.currentItem().text()))
+        self.pushButton.setDisabled(True)
+        self.pushButton_2.setDisabled(False)
+
+    def stopStation(self):
+        self.radio.stopFMStation()
+        self.pushButton_2.setDisabled(True)
+        self.pushButton.setDisabled(False)
+
+
         
 
 

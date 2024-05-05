@@ -25,7 +25,6 @@ from gnuradio.eng_arg import eng_float, intx
 from gnuradio import eng_notation
 import osmosdr
 import time
-import rtlsdr_epy_block_0 as epy_block_0  # embedded python block
 import sip
 
 
@@ -183,7 +182,6 @@ class rtlsdr(gr.top_block, Qt.QWidget):
 
         self._qtgui_freq_sink_x_0_0_win = sip.wrapinstance(self.qtgui_freq_sink_x_0_0.qwidget(), Qt.QWidget)
         self.top_layout.addWidget(self._qtgui_freq_sink_x_0_0_win)
-        self.epy_block_0 = epy_block_0.blk(is_Passed=False)
         self.blocks_multiply_const_vxx_0 = blocks.multiply_const_ff(1)
         self.audio_sink_0 = audio.sink(48000, '', True)
         self.analog_wfm_rcv_0 = analog.wfm_rcv(
@@ -196,9 +194,8 @@ class rtlsdr(gr.top_block, Qt.QWidget):
         # Connections
         ##################################################
         self.connect((self.analog_wfm_rcv_0, 0), (self.rational_resampler_xxx_0_0, 0))
-        self.connect((self.blocks_multiply_const_vxx_0, 0), (self.epy_block_0, 0))
-        self.connect((self.epy_block_0, 0), (self.audio_sink_0, 1))
-        self.connect((self.epy_block_0, 0), (self.audio_sink_0, 0))
+        self.connect((self.blocks_multiply_const_vxx_0, 0), (self.audio_sink_0, 1))
+        self.connect((self.blocks_multiply_const_vxx_0, 0), (self.audio_sink_0, 0))
         self.connect((self.rational_resampler_xxx_0, 0), (self.analog_wfm_rcv_0, 0))
         self.connect((self.rational_resampler_xxx_0, 0), (self.qtgui_freq_sink_x_0_0, 0))
         self.connect((self.rational_resampler_xxx_0_0, 0), (self.blocks_multiply_const_vxx_0, 0))

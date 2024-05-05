@@ -72,10 +72,10 @@ class combinedFMRadio(gr.top_block, Qt.QWidget):
         ##################################################
         self.threshold = threshold = -40
         self.samp_rate = samp_rate = 2e6
-        self.playAudio = playAudio = False
+        self.playAudio = playAudio = True
         self.minBandwidth = minBandwidth = 75000
         self.decimationFactor = decimationFactor = 4
-        self.centerFrequency = centerFrequency = 87e6
+        self.centerFrequency = centerFrequency = 162.55e6
         self.bw = bw = 50e3
 
         ##################################################
@@ -85,7 +85,7 @@ class combinedFMRadio(gr.top_block, Qt.QWidget):
         self._threshold_range = qtgui.Range(-80, 0, 5, -40, 200)
         self._threshold_win = qtgui.RangeWidget(self._threshold_range, self.set_threshold, "'threshold'", "counter_slider", float, QtCore.Qt.Horizontal)
         self.top_layout.addWidget(self._threshold_win)
-        self._centerFrequency_range = qtgui.Range(87e6, 107e6, 2e6, 87e6, 200)
+        self._centerFrequency_range = qtgui.Range(87e6, 200e6, 2e6, 162.55e6, 200)
         self._centerFrequency_win = qtgui.RangeWidget(self._centerFrequency_range, self.set_centerFrequency, "'centerFrequency'", "counter_slider", float, QtCore.Qt.Horizontal)
         self.top_layout.addWidget(self._centerFrequency_win)
         self.rtlsdr_source_0 = osmosdr.source(

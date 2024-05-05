@@ -95,7 +95,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [496, 240.0]
+    coordinate: [520, 240.0]
     rotation: 0
     state: enabled
 - name: audio_sink_0
@@ -131,41 +131,6 @@ blocks:
     bus_source: false
     bus_structure: null
     coordinate: [800, 244.0]
-    rotation: 0
-    state: enabled
-- name: epy_block_0
-  id: epy_block
-  parameters:
-    _source_code: "\"\"\"\nEmbedded Python Blocks:\n\nEach time this file is saved,\
-      \ GRC will instantiate the first class it finds\nto get ports and parameters\
-      \ of your block. The arguments to __init__  will\nbe the parameters. All of\
-      \ them are required to have default values!\n\"\"\"\n\nimport numpy as np\n\
-      from gnuradio import gr\n\n\nclass blk(gr.sync_block):  # other base classes\
-      \ are basic_block, decim_block, interp_block\n    \"\"\"Embedded Python Block\
-      \ example - a simple multiply const\"\"\"\n\n    def __init__(self, is_Passed\
-      \ = False):  # only default arguments here\n        \"\"\"arguments to this\
-      \ function show up as parameters in GRC\"\"\"\n        gr.sync_block.__init__(\n\
-      \            self,\n            name='Embedded Python Block',   # will show\
-      \ up in GRC\n            in_sig=[np.float32],\n            out_sig=[np.float32]\n\
-      \        )\n        # if an attribute with the same name as a parameter is found,\n\
-      \        # a callback is registered (properties work, too).\n        self.isPassed\
-      \ = is_Passed\n\n    def work(self, input_items, output_items):\n        if\
-      \ self.isPassed:\n            output_items[0][:] = input_items[0]\n        else:\n\
-      \            output_items[0][:] = 0\n        return len(output_items[0])\n"
-    affinity: ''
-    alias: ''
-    comment: ''
-    is_Passed: 'False'
-    maxoutbuf: '0'
-    minoutbuf: '0'
-  states:
-    _io_cache: ('Embedded Python Block', 'blk', [('is_Passed', 'False')], [('0', 'float',
-      1)], [('0', 'float', 1)], 'Embedded Python Block example - a simple multiply
-      const', [])
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [920, 244.0]
     rotation: 0
     state: enabled
 - name: qtgui_freq_sink_x_0_0
@@ -246,7 +211,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [456, 112.0]
+    coordinate: [560, 112.0]
     rotation: 0
     state: enabled
 - name: qtgui_freq_sink_x_0_0_0
@@ -327,7 +292,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [304, 376.0]
+    coordinate: [264, 392.0]
     rotation: 0
     state: enabled
 - name: rational_resampler_xxx_0
@@ -347,7 +312,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [312, 232.0]
+    coordinate: [352, 232.0]
     rotation: 0
     state: enabled
 - name: rational_resampler_xxx_0_0
@@ -367,7 +332,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [656, 232.0]
+    coordinate: [664, 232.0]
     rotation: 0
     state: enabled
 - name: rtlsdr_source_0
@@ -732,9 +697,8 @@ blocks:
 
 connections:
 - [analog_wfm_rcv_0, '0', rational_resampler_xxx_0_0, '0']
-- [blocks_multiply_const_vxx_0, '0', epy_block_0, '0']
-- [epy_block_0, '0', audio_sink_0, '0']
-- [epy_block_0, '0', audio_sink_0, '1']
+- [blocks_multiply_const_vxx_0, '0', audio_sink_0, '0']
+- [blocks_multiply_const_vxx_0, '0', audio_sink_0, '1']
 - [rational_resampler_xxx_0, '0', analog_wfm_rcv_0, '0']
 - [rational_resampler_xxx_0, '0', qtgui_freq_sink_x_0_0, '0']
 - [rational_resampler_xxx_0_0, '0', blocks_multiply_const_vxx_0, '0']

@@ -11,6 +11,7 @@ class FMRadio(QObject):
         super().__init__()
         self.GNURadio = combinedFMRadio()
         self.GNURadio.set_playAudio(False)
+        print("Created Radio!")
 
 
     # firstSignal = pyqtSignal(list)
